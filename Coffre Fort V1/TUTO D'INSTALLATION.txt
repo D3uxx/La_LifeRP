@@ -1,0 +1,37 @@
+Ceci est un coffre fort personnel que chaque joueur obtiendra automatiquement lors de sa premiere connexion au serveur . 
+Chaque joueur aura acces a son coffre fort uniquement et pourra y deposer de l'argent propre et de l'argent sale .
+
+Pour ce qui est de l'emplacement des coffres fort il vous suffit de le regler dans le client.lua vous remplacer les zeros 
+dans {x=0.0, y=0.0, z=0.0} c'est la seule modification dans le code du coffre fort a faire . Vous pouvez en ajouter autant que desirer .
+
+
+
+
+
+---------- TUTORIEL D'INSTALLATION ----------
+
+
+1 : mettre le dossier "coffrefort" dans le dossier "resources" ensuite mettre - coffrefort dans le fichier citmp-server.lua
+
+2 : Installer le fichier coffrelspd.SQL dans votre base de donnée SQL
+
+3 : Remplacer votre fichier login.lua avec celui fournit dans le dossier 
+
+chemin d'installation : Desktop\La_LifeRP-master\resources\[essential]\essentialmode\server\player
+
+4 : Terminer le coffre fort sera disponible et utilisable
+
+
+
+Je ne ferais aucuns support quelqu'il soit car le tutoriel d'installation est complet et bien detaillé merci de votre comprehension . 
+
+
+
+
+
+CREDITS : 
+
+
+Createur Nelyo  :   https://github.com/ElNelyo/cop-coffre
+
+Modifications et Ameliorations  : Irtas Momaki / Walter White
