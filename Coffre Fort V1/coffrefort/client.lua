@@ -1,16 +1,17 @@
-
 local coffre = {
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-  {x=0.0, y=0.0, z=0.0},
-
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+    {name="CoffreFort", x=0.0, y=0.0, z=0.0},
+	{name="CoffreFort", x=0.0, y=0.0, z=0.0}
 }
-
+coffrefortselected = { {x=nil, y=nil, z=nil}, }
 
 
 function drawTxt(text,font,centre,x,y,scale,r,g,b,a)
@@ -39,19 +40,18 @@ end
 
 
 Citizen.CreateThread(function()
-    while true do
-      for i = 1, #coffre do
-        Citizen.Wait(0)
-            DrawMarker(1,coffre[i].x,coffre[i].y,coffre[i].z,0,0,0,0,0,0,1.0,1.0,1.0,255,0,0,0,0,0,0,0)
-            if GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)), coffre[i].x,coffre[i].y,coffre[i].z,true ) < 2 then
-              ShowInfo('~b~Appuyer sur ~g~E~b~ pour ouvrir votre coffre fort', 0)
-              if IsControlJustPressed(1,38) then
-                  OpenfbiMenu()
- 
-              end
-            end
-      end
-    end
+	while true do
+		Citizen.Wait(0)
+		for _, coffrefort in pairs(coffre) do
+			DrawMarker(1, coffrefort.x, coffrefort.y, coffrefort.z, 0, 0, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0)
+			if GetDistanceBetweenCoords(coffrefort.x, coffrefort.y, coffrefort.z, GetEntityCoords(LocalPed())) < 2 and IsPedInAnyVehicle(LocalPed(), true) == false then
+				 ShowInfo("Appuyer sur ~g~F6~s~ pour ouvrir le coffre fort",0,1,0.5,0.8,0.6,255,255,255,255)
+				if IsControlJustPressed(1, 167) then
+					OpenfbiMenu()
+				end
+			end
+		end
+	end
 end)
 
 --Createur Nelyo  :   https://github.com/ElNelyo/cop-coffre
