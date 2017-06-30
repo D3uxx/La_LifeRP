@@ -5,7 +5,7 @@ require "resources/mysql-async/lib/MySQL"
 
 function identifier(player)
   local player = player
-   return MySQL.Sync.fetchScalar("SELECT identifier FROM users WHERE identifier=@identifier ",{['@identifier'] = player})
+   return MySQL.Sync.fetchScalar("SELECT identifier FROM users WHERE identifier =@identifier ",{['@identifier'] = player})
 end
 
 
@@ -102,7 +102,7 @@ TriggerEvent('es:getPlayerFromId', source, function(user)
       print(prixajoutesale)
       print(prixtotalsale)
 
-      if((user.money - prixajoutesale)>=0)then
+      if((user.dirtymoney - prixajoutesale)>=0)then
      
         user:removeDMoney((prixajoutesale))
 
