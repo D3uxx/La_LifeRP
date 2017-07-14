@@ -6,16 +6,16 @@ PreParseResources:
 AutoStartResources:
     - Citizen-V # MAP -> Définit le ou les points de Spawn de base.
     - client_base # NeverWanted, HandsUP, VoiceChat, etc...
+    - localization
     - chat
     - spawnmanager
     - baseevents
     - rconlog
+    - pQueue
     - hardcap # prevents too many players from joining
     - fivemenu
     - es_admin
     - jobs-legal
-    - truckerjob
-    #- pooljob
     - es_garages
     - es_weashop
     - jobs-police
@@ -30,10 +30,9 @@ AutoStartResources:
     - FBI
     - Sheriff
     - LSPD
-    - mine
     - Wrapper
+    - motd
     - ccreation
-    - Organe
     - carwash
     - emergency
     - es_afterStart

@@ -5,7 +5,7 @@ end
 
 RegisterNetEvent("vmenu:updateChar")
 AddEventHandler("vmenu:updateChar", function(args)
-  model = GetHashKey(args[17])
+  model = GetHashKey(args[19])
   RequestModel(model)
   while not HasModelLoaded(model) do -- Wait for model to load
     RequestModel(model)
@@ -17,6 +17,7 @@ AddEventHandler("vmenu:updateChar", function(args)
 	SetPedHeadBlendData(GetPlayerPed(-1), args[1], args[1], args[1], args[1], args[1], args[1], 1.0, 1.0, 1.0, true)
   ChangeComponent({0,0,args[1],args[2]})-- 1:componentID; 2: page; 3: drawbleID; 4: textureID
   ChangeComponent({2,0,args[3],args[4]})
+  SetPedHairColor(GetPlayerPed(-1), args[17], args[18])
   ChangeComponent({3,0,args[13],args[14]})
   ChangeComponent({4,0,args[5],args[6]})
   ChangeComponent({6,0,args[7],args[8]})
@@ -24,6 +25,7 @@ AddEventHandler("vmenu:updateChar", function(args)
   ChangeComponent({11,0,args[9],args[10]})
   ChangeComponent({8,0,args[11],args[12]})
 
+  TriggerServerEvent("weaponshop:GiveWeapons")
   VMenu.updatedChar = true
 end)
 
@@ -43,10 +45,11 @@ AddEventHandler("vmenu:changeGender", function(gender)
   SetPlayerModel(PlayerId(), model)
   SetModelAsNoLongerNeeded(model)
   SetPedComponentVariation(GetPlayerPed(-1), 2, 0, 0, 2)
+  TriggerServerEvent("weaponshop:GiveWeapons")
 end)
 
 RegisterNetEvent("vmenu:supdateChar")
-AddEventHandler("vmenu:supdateChar", function(o, t, th, f, fi, s, se, e, n, te, el, tw, thi, fo, fif, si, sev)
+AddEventHandler("vmenu:supdateChar", function(o, t, th, f, fi, s, se, e, n, te, el, tw, thi, fo, fif, si, y, u, sev)
   model = GetHashKey(sev)
   RequestModel(model)
   while not HasModelLoaded(model) do -- Wait for model to load
@@ -59,13 +62,14 @@ AddEventHandler("vmenu:supdateChar", function(o, t, th, f, fi, s, se, e, n, te, 
   SetPedHeadBlendData(GetPlayerPed(-1), o, o, o, o, o, o, 1.0, 1.0, 1.0, true)
   ChangeComponent({0,0,o,t})-- 1:componentID; 2: page; 3: drawbleID; 4: textureID
   ChangeComponent({2,0,th,f})
+  SetPedHairColor(GetPlayerPed(-1), y, u)
   ChangeComponent({3,0,thi,fo})
   ChangeComponent({4,0,fi,s})
   ChangeComponent({6,0,se,e})
   ChangeComponent({7,0,fif,si})
   ChangeComponent({11,0,n,te})
   ChangeComponent({8,0,el,tw})
-
+  TriggerServerEvent("weaponshop:GiveWeapons")
   VMenu.updatedChar = true
 end)
 
@@ -95,7 +99,11 @@ end)
 AddEventHandler("vmenu:OutfitsOG", function(target)
   VMenu.ResetMenu(8, "Tenues", "cloth")
   VMenu.AddMenu(8, "Tenues", "cloth") -- default = Header "Texte" sur fond bleu
-  VMenu.AddNum(8, "Catégorie", "Tenues", 0, 65, "Change de catégorie")
+  if User.gender == "mp_m_freemode_01" then
+    VMenu.AddNum(8, "Catégorie", "Tenues", 0, 65, "Changer de catégorie")
+  else
+    VMenu.AddNum(8, "Catégorie", "Tenues", 66, 66, "Changer de catégorie")
+  end
   VMenu.AddSep(8, OutfitsCat[1])
   VMenu.AddFunc(8, "Validez catégories tenues", "vmenu:OutfitsValidate", {getOpt("Tenues")}, "Valider")
 end)
@@ -250,6 +258,8 @@ AddEventHandler("vmenu:OutfitsValidate", function(target, e)
     menuOutfits(172, "OutfitsNo65", OutfitsCat[65])
   elseif (e == 65) then
     menuOutfits(173, "OutfitsNo66", OutfitsCat[66])
+  elseif (e == 66) then
+    menuOutfits(175, "OutfitsNo68", OutfitsCat[67])
   end
 end)
 

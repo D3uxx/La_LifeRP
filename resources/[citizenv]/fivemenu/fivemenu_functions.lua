@@ -18,10 +18,21 @@ function DrawNotif(text)
 	DrawNotification(false, false)
 end
 
+----- Job info for the menu ------
+onJobLegal = 0
+
+AddEventHandler("fivemenu:f_getJobInfos", function(onJobLegaly)
+	onJobLegal = onJobLegaly
+end)
+----------------------------------
+
+--------------- Clean cash  ------
 AddEventHandler("vmenu:cleanCash", function(target)
 	TriggerServerEvent("vmenu:cleanCash_s")
 end)
+----------------------------------
 
+------ Animation Controller ------
 AddEventHandler("vmenu:anim", function(dict, anim)
 	Citizen.CreateThread(function()
 		Wait(1000)
@@ -92,29 +103,24 @@ AddEventHandler("vmenu:animChain", function(dict, anim, dict2, anim2, dict3, ani
 		end
 	end)
 end)
+----------------------------------
 
+----------------------------------
 AddEventHandler("vmenu:poleemploi", function(target, idJob) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
 	User.job = idJob
 	TriggerServerEvent('poleemploi:jobs', idJob)
 end)
+----------------------------------
 
+----------------------------------
 AddEventHandler("vmenu:MainMenuOG", function(target)
 	VMenu.police = false
 	VMenu.telephone = false
 	VMenu.animations = false
 end)
+----------------------------------
 
-AddEventHandler("vmenu:policeState", function(target, idPolice) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
-	TriggerServerEvent("player:serviceOn", "police")
-	TriggerServerEvent('jobspolice:jobs', idPolice, false)
-end)
-
-AddEventHandler("vmenu:policeStateCivil", function(target, idPolice) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
-	TriggerServerEvent("vmenu:lastChar")
-	TriggerServerEvent("player:serviceOn", "police")
-	TriggerServerEvent('jobspolice:jobs', idPolice, true)
-end)
-
+----------------------------------
 local cashconfirmed = 0
 local sendMoney = 0
 local sendTarget = -1
@@ -127,7 +133,7 @@ AddEventHandler("vmenu:giveCash", function(target, money)
 		sendMoney = money
 		sendTarget = target
 	else
-		TriggerEvent("citizenv:notif", "~r~ Vous n'avez pas de cible")
+		TriggerEvent("itinerance:notif", "~r~ Vous n'avez pas de cible")
 	end
 end)
 
@@ -140,17 +146,25 @@ Citizen.CreateThread(function()
 			elseif UpdateOnscreenKeyboard() == 1 then
 				local txt = GetOnscreenKeyboardResult()
 				if (string.len(txt) > 0) and (string.match(txt, '%d+')) then -- BEAU REGEX PATTERN EN LUA PARCE QUE C'EST PAUVRE
-					if sendMoney > tonumber(txt) then
-						addCash = txt
-						cashconfirmed = 2
+					txt = tonumber(txt)
+					if sendMoney > txt then
+						if txt > 0 then
+							addCash = txt
+							cashconfirmed = 2
+						else
+							TriggerEvent("itinerance:notif", "~r~ Vous devez entrer un nombre positif")
+							cashconfirmed = 0
+							sendMoney = 0
+							sendTarget = -1
+						end
 					else
-						TriggerEvent("citizenv:notif", "~r~ Vous n'avez pas assez d'argent")
+						TriggerEvent("itinerance:notif", "~r~ Vous n'avez pas assez d'argent")
 						cashconfirmed = 0
 						sendMoney = 0
 						sendTarget = -1
 					end
 				else
-					TriggerEvent("citizenv:notif", "~r~ Entrer un montant valide")
+					TriggerEvent("itinerance:notif", "~r~ Entrer un montant valide")
 					cashconfirmed = 0
 					sendMoney = 0
 					sendTarget = -1
@@ -180,7 +194,7 @@ AddEventHandler("vmenu:giveDCash", function(target, money)
 		sendMoney = money
 		sendTarget = target
 	else
-		TriggerEvent("citizenv:notif", "~r~ Vous n'avez pas de cible")
+		TriggerEvent("itinerance:notif", "~r~ Vous n'avez pas de cible")
 	end
 end)
 
@@ -193,17 +207,25 @@ Citizen.CreateThread(function()
 			elseif UpdateOnscreenKeyboard() == 1 then
 				local txt = GetOnscreenKeyboardResult()
 				if (string.len(txt) > 0) and (string.match(txt, '%d+')) then -- BEAU REGEX PATTERN EN LUA PARCE QUE C'EST PAUVRE
-					if sendMoney > tonumber(txt) then
-						addCash = txt
-						dcashconfirmed = 2
+					txt = tonumber(txt)
+					if sendMoney > txt then
+						if txt > 0 then
+							addCash = txt
+							dcashconfirmed = 2
+						else
+							TriggerEvent("itinerance:notif", "~r~ Vous devez entrer un nombre positif")
+							dcashconfirmed = 0
+							sendMoney = 0
+							sendTarget = -1
+						end
 					else
-						TriggerEvent("citizenv:notif", "~r~ Vous n'avez pas assez d'argent")
+						TriggerEvent("itinerance:notif", "~r~ Vous n'avez pas assez d'argent")
 						dcashconfirmed = 0
 						sendMoney = 0
 						sendTarget = -1
 					end
 				else
-					TriggerEvent("citizenv:notif", "~r~ Entrer un montant valide")
+					TriggerEvent("itinerance:notif", "~r~ Entrer un montant valide")
 					dcashconfirmed = 0
 					sendMoney = 0
 					sendTarget = -1
@@ -222,6 +244,19 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
+----------------------------------
+
+----------------------------------
+AddEventHandler("vmenu:policeState", function(target, idPolice) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
+	TriggerServerEvent("player:serviceOn", "police")
+	TriggerServerEvent('jobspolice:jobs', idPolice, false)
+end)
+
+AddEventHandler("vmenu:policeStateCivil", function(target, idPolice) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
+	TriggerServerEvent("vmenu:lastChar")
+	TriggerServerEvent("player:serviceOn", "police")
+	TriggerServerEvent('jobspolice:jobs', idPolice, true)
+end)
 
 AddEventHandler("vmenu:getArmory", function(target, idGun) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
 	TriggerServerEvent('jobspolice:wepArmory', idGun)
@@ -235,6 +270,10 @@ AddEventHandler("vmenu:getHelicoGarage", function(target, vehicule) -- target = 
 	TriggerServerEvent('jobspolice:vehHelicoGarage', vehicule)
 end)
 
+AddEventHandler("vmenu:getAmbulanceHelicoGarage", function(target, vehicule) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
+	TriggerServerEvent('es_em:getAmbulanceHelicoGarage', vehicule)
+end)
+
 AddEventHandler("vmenu:toGarage", function(target) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
 	if IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
 		DrawNotif("Sortez du véhicule")
@@ -242,6 +281,7 @@ AddEventHandler("vmenu:toGarage", function(target) -- target = Dernier joueur à
 		TriggerServerEvent('jobspolice:vehtoGarage')
 	end
 end)
+----------------------------------
 
 AddEventHandler("vmenu:getSkin", function(target, sex) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
 	CreateThread(function()
@@ -292,8 +332,8 @@ AddEventHandler("vmenu:getclientOutfits", function(target, item) -- target = Der
 	end)
 end)
 
-AddEventHandler("vmenu:getclientHair", function(target, hair, hairc) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
-	TriggerServerEvent("vmenu:getHair", hair, hairc)
+AddEventHandler("vmenu:getclientHair", function(target, hair, hairsec, hairc, haircsec) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !
+	TriggerServerEvent("vmenu:getHair", hair, hairsec, hairc, haircsec)
 end)
 
 AddEventHandler("vmenu:getclientFace", function(target, sex, face, face_text) -- target = Dernier joueur à avoir parlé, pas besoin ici. Mais obligatoire !

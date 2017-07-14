@@ -78,6 +78,25 @@ function()
 end
 )
 
+RegisterServerEvent('es_em:endingService')
+AddEventHandler('es_em:endingService',
+function(source, service)
+  TriggerEvent('es:getPlayerFromId', source, function(user)
+    if (user) then
+      user:setenService(2)
+      local player = user.identifier
+
+      MySQL.Async.fetchAll("SELECT skin,face,face_text,hair,hair_text,pants,pants_text,shoes,shoes_text,torso,torso_text,shirt,shirt_text,three,three_text,seven,seven_text,haircolor,haircolor_text FROM outfits WHERE identifier=@user",{
+        ['@user']=player
+      }, function (result)
+        TriggerClientEvent("vmenu:updateChar",source,{result[1].face,result[1].face_text,result[1].hair,result[1].hair_text,result[1].pants,result[1].pants_text,result[1].shoes,result[1].shoes_text,result[1].torso,result[1].torso_text,result[1].shirt,result[1].shirt_text,result[1].three,result[1].three_text,result[1].seven,result[1].seven_text,result[1].haircolor,result[1].haircolor_text,result[1].skin})
+      end)
+    else
+      TriggerEvent("es:desyncMsg")
+    end
+  end)
+end)
+
 RegisterServerEvent('es_em:sv_setService')
 AddEventHandler('es_em:sv_setService',
 function(service)
@@ -118,11 +137,28 @@ AddEventHandler('es_em:sv_removeMoney', function()
 end)
 
 RegisterServerEvent('es_em:sv_sendMessageToPlayerInComa')
-AddEventHandler('es_em:sv_sendMessageToPlayerInComa',
-function(sourcePlayerInComa)
+AddEventHandler('es_em:sv_sendMessageToPlayerInComa', function(sourcePlayerInComa)
   TriggerClientEvent('es_em:cl_sendMessageToPlayerInComa', sourcePlayerInComa)
-end
-)
+end)
+
+RegisterServerEvent('es_em:getAmbulanceHelicoGarage')
+AddEventHandler('es_em:getAmbulanceHelicoGarage', function(vehicule)
+	TriggerEvent('es:getPlayerFromId', source, function(user)
+		if (user) then
+			local player = user.identifier
+			local L = #player - 4
+			local L1 = #player - 3
+			local L2 = #player - 2
+			local L3 = #player - 1
+			local plateveh = "JOBS" .. player[L] .. player[L1] .. player[L2] .. player[L3]
+			plateveh = string.upper(plateveh)
+			user:setVehicle(plateveh)
+			TriggerClientEvent("es_em:SpawnHelicoAmbulance", source, vehicule, plateveh, false)
+		else
+			TriggerEvent("es:desyncMsg")
+		end
+	end)
+end)
 
 AddEventHandler('playerDropped', function()
 

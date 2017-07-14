@@ -59,7 +59,8 @@ RegisterNUICallback('updateGender', function(data, cb)
 end)
 
 RegisterNUICallback('updateHair', function(data, cb)
-    SetPedComponentVariation(GetPlayerPed(-1), 2, tonumber(data.hairy), tonumber(data.color), 2)
+    SetPedComponentVariation(GetPlayerPed(-1), 2, tonumber(data.hairy), tonumber(data.hairysec), 2)
+		SetPedHairColor(GetPlayerPed(-1), tonumber(data.hairycolor), tonumber(data.hairycolorsec))
     Citizen.Wait(10)
     cb('ok')
 end)
@@ -112,9 +113,15 @@ RegisterNUICallback('login', function(data, cb)
 			    TriggerEvent("vmenu:OutfitsVal", target, 7, 110)
 			elseif choice == "18" then
 			    TriggerEvent("vmenu:OutfitsVal", target, 8, 110)
+			elseif choice == "19" then
+					TriggerEvent("vmenu:OutfitsVal", target, 108, 175)
+			elseif choice == "20" then
+					TriggerEvent("vmenu:OutfitsVal", target, 99, 175)
+			elseif choice == "21" then
+					TriggerEvent("vmenu:OutfitsVal", target, 84, 175)
 			end
 	    TriggerServerEvent("vmenu:getFace", tonumber(data.gender), data.face, 0)
-	    TriggerServerEvent("vmenu:getHair", tonumber(data.hair), tonumber(data.color))
+	    TriggerServerEvent("vmenu:getHair", tonumber(data.hair), tonumber(data.hairsec), tonumber(data.haircolor), tonumber(data.haircolorsec))
 	    DisplayNotification("Votre nom: " .. data.password .. " - Votre prenom: " .. data.username)
 	    DisplayNotification(data.outfit .. " - " .. data.gender)
 	    EnableGui(false)
@@ -122,9 +129,10 @@ RegisterNUICallback('login', function(data, cb)
 			SetEntityCoordsNoOffset(GetPlayerPed(-1), -1037.927, -2738.061, 20.169, 0,  0,  1)
 	    FreezeEntityPosition(GetPlayerPed(-1),  false)
 	    TriggerServerEvent("vmenu:lastChar")
+			TriggerEvent("disclaimer:called")
 			--TriggerServerEvent("es:loadAfterCreation")
 		else
-			TriggerEvent("citizenv:notif", "~r~Remplisser tous les champs")
+			TriggerEvent("itinerance:notif", "~r~Remplissez tous les champs")
 		end
     cb('ok')
 end)

@@ -45,7 +45,9 @@ $(function() {
     $("input[name=gender][value='0']").prop("checked", true);
     $("input[name=outfit][value='1']").prop("checked", true);
     $("input[name=hair]").val(0);
-    $("input[name=color]").val(0);
+    $("input[name=hairsec]").val(0);
+    $("input[name=haircolor]").val(0);
+    $("input[name=haircolorsec]").val(0);
     $("input[name=face]").val(0);
 
 
@@ -80,14 +82,36 @@ $(function() {
     $('input[name=hair]').bind('click keyup', function(){
         $.post('http://ccreation/updateHair', JSON.stringify({
             hairy: $('input[name=hair]', '#login-form').val(),
-            color: $('input[name=color]', '#login-form').val()
+            hairysec: $('input[name=hairsec]', '#login-form').val(),
+            hairycolor: $('input[name=haircolor]', '#login-form').val(),
+            hairycolorsec: $('input[name=haircolorsec]', '#login-form').val()
         }));
     });
 
-    $('input[name=color]').bind('click keyup', function(){
+    $('input[name=hairsec]').bind('click keyup', function(){
         $.post('http://ccreation/updateHair', JSON.stringify({
             hairy: $('input[name=hair]', '#login-form').val(),
-            color: $('input[name=color]', '#login-form').val()
+            hairysec: $('input[name=hairsec]', '#login-form').val(),
+            hairycolor: $('input[name=haircolor]', '#login-form').val(),
+            hairycolorsec: $('input[name=haircolorsec]', '#login-form').val()
+        }));
+    });
+
+    $('input[name=haircolor]').bind('click keyup', function(){
+        $.post('http://ccreation/updateHair', JSON.stringify({
+            hairy: $('input[name=hair]', '#login-form').val(),
+            hairysec: $('input[name=hairsec]', '#login-form').val(),
+            hairycolor: $('input[name=haircolor]', '#login-form').val(),
+            hairycolorsec: $('input[name=haircolorsec]', '#login-form').val()
+        }));
+    });
+
+    $('input[name=haircolorsec]').bind('click keyup', function(){
+        $.post('http://ccreation/updateHair', JSON.stringify({
+            hairy: $('input[name=hair]', '#login-form').val(),
+            hairysec: $('input[name=hairsec]', '#login-form').val(),
+            hairycolor: $('input[name=haircolor]', '#login-form').val(),
+            hairycolorsec: $('input[name=haircolorsec]', '#login-form').val()
         }));
     });
 
@@ -100,7 +124,9 @@ $(function() {
             outfit: $('input[name=outfit]:checked', '#login-form').val(),
             gender: $('input[name=gender]:checked', '#login-form').val(),
             hair: $('input[name=hair]', '#login-form').val(),
-            color: $('input[name=color]', '#login-form').val(),
+            hairsec: $('input[name=hairsec]', '#login-form').val(),
+            haircolor: $('input[name=haircolor]', '#login-form').val(),
+            haircolorsec: $('input[name=haircolorsec]', '#login-form').val(),
             face: $('input[name=face]', '#login-form').val()
         }));
     });

@@ -26,5 +26,6 @@ client_script {
 	'tel_client.lua',
 	'distributeur_client.lua',
 	'animations_client.lua',
-	'advancedshop_client.lua'
+	'advancedshop_client.lua',
+	'localization.lua'
 }

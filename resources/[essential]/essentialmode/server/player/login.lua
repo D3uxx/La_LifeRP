@@ -9,20 +9,7 @@ require "resources/mysql-async/lib/MySQL"
 
 telist = {}
 
--- tel = { name, surname, identifier, IDsource }
-
--- -- THIS IS CALLED AFTER THE CHARACTER CREATION.
--- -- WE NEED TO UPDATE HIS NAME BECAUSE CITIZEN CITIZEN IS NOT A DECENT NAME FOR SOMEONE!
--- -- I AM WRITING SINGLE COMMENT LINE
--- RegisterServerEvent("es:loadAfterCreation")
--- AddEventHandler("es:loadAfterCreation", function()
--- 	TriggerEvent('es:getPlayerFromId', source, function(user)
--- 		local player = user.identifier
--- 		MySQL.Async.fetchScalar("SELECT telephone FROM users WHERE identifier = @name", {['@name'] = player}, function (telephone)
--- 			telist[telephone] = { IDsource = source }
--- 		end)
---   end)
--- end)
+local hopital = { x = 306.72396850586, y = -1434.4223632813, z = 29.804103851318  }
 
 local countItems = MySQL.Sync.fetchScalar("SELECT COUNT(1) FROM items")
 
@@ -38,9 +25,50 @@ AddEventHandler("es:deleteTelist", function(source)
 	end)
 end)
 
+-- Get the status of the player, Dead or Alive
+RegisterServerEvent("es:updateAlivePlayer")
+AddEventHandler("es:updateAlivePlayer", function(alive_status)
+	TriggerEvent('es:getPlayerFromId', source, function(user)
+		user.status = alive_status
+	end)
+end)
+
+-- When the client dropped. It's here
 AddEventHandler('playerDropped', function()
 	TriggerEvent('es:getPlayerFromId', source, function(user)
 		if (user) then
+			-- Try to alt F4 now ...
+			-- if user.status == "alive" then
+			-- 	user.status  = nil
+			--
+			-- 	tel = user:getTel()
+			-- 	telist[tel].IDsource = nil
+			--
+			-- 	MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identifier",
+			-- 	{['@value'] = user.money, ['@identifier'] = user.identifier})
+			--
+			-- 	MySQL.Async.execute("UPDATE users SET `dirtymoney`=@value WHERE identifier = @identifier",
+			-- 	{['@value'] = user.dirtymoney, ['@identifier'] = user.identifier})
+			--
+			-- 	MySQL.Async.execute("UPDATE coordinates SET `x`=@valx,`y`=@valy,`z`=@valz WHERE identifier = @identifier",
+			-- 	{['@valx'] = user.coords.x, ['@valy'] = user.coords.y, ['@valz'] = user.coords.z, ['@identifier'] = user.identifier})
+			-- else
+			-- 	user.status  = nil
+			--
+			-- 	tel = user:getTel()
+			-- 	telist[tel].IDsource = nil
+			--
+			-- 	MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identifier",
+			-- 	{['@value'] = 0, ['@identifier'] = user.identifier})
+			--
+			-- 	MySQL.Async.execute("UPDATE users SET `dirtymoney`=@value WHERE identifier = @identifier",
+			-- 	{['@value'] = 0, ['@identifier'] = user.identifier})
+			--
+			-- 	MySQL.Async.execute("UPDATE coordinates SET `x`=@valx,`y`=@valy,`z`=@valz WHERE identifier = @identifier",
+			-- 	{['@valx'] = hopital.x, ['@valy'] = hopital.y, ['@valz'] = hopital.z, ['@identifier'] = user.identifier})
+			-- end
+			user.status  = nil
+
 			tel = user:getTel()
 			telist[tel].IDsource = nil
 
@@ -58,6 +86,7 @@ AddEventHandler('playerDropped', function()
 	end)
 end)
 
+-- GET THE PHONEBOOK
 RegisterServerEvent("es:getPhonebook")
 AddEventHandler("es:getPhonebook", function(source)
 	TriggerEvent('es:getPlayerFromId', source, function(user)
@@ -69,6 +98,7 @@ AddEventHandler("es:getPhonebook", function(source)
 	end)
 end)
 
+-- AND SEND IT TO THE CLIENT! BOIS IN THE PHONEBOOK!
 function LoadPhonebook(identifier, source)
 	local phonebook = {}
 	MySQL.Async.fetchAll("SELECT * FROM phonebook JOIN users ON `phonebook`.`phonenumber` = `users`.`telephone` WHERE pidentifier = @username", { ['@username'] = identifier }, function (result)
@@ -83,40 +113,42 @@ function LoadPhonebook(identifier, source)
 	end)
 end
 
--- THIS IS THE WHERE WE LOAD THE INFO FROM THE DATABASE. IF YOU NEED IT IN THE MENU -> fivemenu
+-- THIS IS WHERE WE LOAD THE INFO FROM THE DATABASE. IF YOU NEED IT IN THE MENU -> fivemenu
 -- DON'T FORGET THE PLAYER CLASS! CREATE YOUR GETTER AND SETTER BOI!
 function LoadUser(identifier, source, new)
 	MySQL.Async.fetchAll("SELECT * FROM users WHERE identifier = @name", {['@name'] = identifier}, function (result)
 		MySQL.Async.fetchAll("SELECT * FROM coordinates WHERE identifier = @name", {['@name'] = identifier}, function (result1)
-			local group = groups[result[1].group]
-			Users[source] = Player(source, result[1].permission_level, result[1].money, result[1].identifier, group, result[1].dirtymoney, result[1].job, result[1].police, result[1].nom, result[1].prenom, result[1].telephone, { x = result1[1].x, y = result1[1].y, z = result1[1].z})
+			MySQL.Async.fetchAll("SELECT * FROM outfits WHERE identifier = @name", {['@name'] = identifier}, function (result2)
+				local group = groups[result[1].group]
+				Users[source] = Player(source, result[1].permission_level, result[1].money, result[1].identifier, group, result[1].dirtymoney, result[1].job, result[1].police, result[1].nom, result[1].prenom, result[1].telephone, { x = result1[1].x, y = result1[1].y, z = result1[1].z}, result2[1].skin)
 
-			local playerCountItems = MySQL.Sync.fetchScalar("SELECT COUNT(1) FROM user_inventory WHERE user_id = @username", { ['@username'] = identifier })
-			if playerCountItems ~= countItems then
-				for i=playerCountItems+1,countItems do
-					MySQL.Async.execute("INSERT INTO user_inventory (`user_id`, `item_id`, `quantity`) VALUES (@username, @item_id, '0')",
-					{['@username'] = identifier, ['@item_id'] = i})
+				local playerCountItems = MySQL.Sync.fetchScalar("SELECT COUNT(1) FROM user_inventory WHERE user_id = @username", { ['@username'] = identifier })
+				if playerCountItems ~= countItems then
+					for i=playerCountItems+1,countItems do
+						MySQL.Async.execute("INSERT INTO user_inventory (`user_id`, `item_id`, `quantity`) VALUES (@username, @item_id, '0')",
+						{['@username'] = identifier, ['@item_id'] = i})
+					end
 				end
-			end
 
-			-- THE ARRAY THAT WE WILL USE TO COMMUNICATE WITH CELLPHONE, OMAGGAD TECHNOLOGY
-			telist[result[1].telephone] = { IDsource = source }
+				-- THE ARRAY THAT WE WILL USE TO COMMUNICATE WITH CELLPHONE, OMAGGAD TECHNOLOGY
+				telist[result[1].telephone] = { IDsource = source }
 
-			-- LOADING THE PHONEBOOK OF THE PLAYER
-			LoadPhonebook(identifier, source)
+				-- LOADING THE PHONEBOOK OF THE PLAYER
+				LoadPhonebook(identifier, source)
 
-			-- LOADING STUFF AFTER LOADING PLAYER
+				-- LOADING STUFF AFTER LOADING PLAYER
 
-			TriggerEvent('es:playerLoaded', source, Users[source])
-			TriggerClientEvent("es:finishedLoading", source)
+				TriggerEvent('es:playerLoaded', source, Users[source])
+				TriggerClientEvent("es:finishedLoading", source)
 
-			if(true)then
-				TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
-			end
+				if(true)then
+					TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
+				end
 
-			if(true)then
-				TriggerEvent('es:newPlayerLoaded', source, Users[source])
-			end
+				if(true)then
+					TriggerEvent('es:newPlayerLoaded', source, Users[source])
+				end
+			end)
 		end)
 	end)
 end
@@ -212,6 +244,7 @@ function registerUser(identifier, source)
 			LoadUser(identifier, source, true)
 		else
 			LoadUser(identifier, source)
+			TriggerClientEvent("disclaimer:called", source)
 		end
 	end)
 end
@@ -259,6 +292,7 @@ AddEventHandler("es:getPlayerFromId", function(user, cb)
 	end
 end)
 
+-- USELESS DOPE STUFF
 AddEventHandler("es:getPlayerFromIdentifier", function(identifier, cb)
 	MySQL.Async.fetchAll("SELECT * FROM users WHERE identifier = @name", {['@name'] = identifier}, function (result)
 		if(result[1])then
@@ -269,6 +303,7 @@ AddEventHandler("es:getPlayerFromIdentifier", function(identifier, cb)
 	end)
 end)
 
+-- IF YOU NEED ALL THE PLAYERS
 AddEventHandler("es:getAllPlayers", function(cb)
 	MySQL.Async.fetchAll("SELECT * FROM users", {}, function (result)
 		if(result)then
@@ -366,18 +401,19 @@ AddEventHandler("tel:sendingMsg", function(msg, teldest)
 				local player = telist[teldest].IDsource
 				local player2 = telist[origin].IDsource
 				TriggerClientEvent("tel:receivingMsg", player, msg, name, surname)
-				TriggerClientEvent("citizenv:notif", player2, "~g~ Message envoyé")
+				TriggerClientEvent("itinerance:notif", player2, "~g~ Message envoyé")
 			else
-				TriggerClientEvent("citizenv:notif", player2, "~r~ Le joueur n'est pas connecté")
+				TriggerClientEvent("itinerance:notif", player2, "~r~ Le joueur n'est pas connecté")
 			end
 		else
-			TriggerClientEvent("citizenv:notif", player2, "~r~ Le joueur n'est pas connecté")
+			TriggerClientEvent("itinerance:notif", player2, "~r~ Le joueur n'est pas connecté")
 		end
 	else
 		TriggerEvent("es:desyncMsg")
 	end
 end)
 
+-- GET THE ID WITH THIS COOL FUNC
 function getPlayerID(source)
 	local identifiers = GetPlayerIdentifiers(source)
 	local player = getIdentifiant(identifiers)

@@ -80,6 +80,7 @@ VMenu = {
 	outfitshop = false,
 	garagepolice = false,
 	garagehelicopolice = false,
+	garagehelicoambulance = false,
 	lockerpolice = false,
 
 	Tanker_company = false,
@@ -137,7 +138,8 @@ User = {
 	prenom = "",
 	vehicle = "",
 	identifier = nil,
-	telephone = ""
+	telephone = "",
+	gender = ""
 }
 
 -- AddEventHandler("playerSpawned", function()
@@ -465,6 +467,8 @@ function VMenu.valid()
 			TriggerEvent("vmenu:closeMenu")
 		elseif VMenu.curMenu == 18 then
 			TriggerEvent("vmenu:closeMenu")
+		elseif VMenu.curMenu == 19 then
+			TriggerEvent("vmenu:closeMenu")
 		elseif VMenu.curMenu == 98 then
 			--TriggerServerEvent("inventory:getItems_s")
 			getMainMenu()
@@ -500,8 +504,6 @@ function VMenu.back()
 		scrollAdjust()
 	else
 		TriggerEvent("vmenu:closeMenu")
-		TriggerEvent("es:setMoneyDisplay", "hidden")
-		TriggerEvent("banking:setBankDisplay", "hidden")
 	end
 end
 
@@ -620,8 +622,6 @@ function VMenu.test_keys()
 					if VMenu.curMenu == 98 then
 						if VMenu.visible then
 							TriggerEvent("vmenu:toggleMenu")
-							TriggerEvent("es:setMoneyDisplay", "hidden")
-							TriggerEvent("banking:setBankDisplay", "hidden")
 						else
 							TriggerEvent("vmenu:openMenu", 98)
 						end
@@ -1001,15 +1001,21 @@ function Construct()
 
 	local menu = 8
 	VMenu.AddMenu(menu, "Tenues", "cloth") -- default = Header "Texte" sur fond bleu
-	VMenu.AddNum(menu, "Catégorie", "Tenues", 0, 65, "Changer de catégorie")
+	if User.gender == "mp_m_freemode_01" then
+		VMenu.AddNum(8, "Catégorie", "Tenues", 0, 65, "Changer de catégorie")
+	else
+		VMenu.AddNum(8, "Catégorie", "Tenues", 66, 66, "Changer de catégorie")
+	end
 	VMenu.AddSep(menu, OutfitsCat[1])
 	VMenu.AddFunc(menu, "Validez catégories tenues", "vmenu:OutfitsValidate", {getOpt("Tenues")}, "Valider")
 
 	local menu = 9
 	VMenu.AddMenu(menu, "", "default") -- default = Header "Texte" sur fond bleu
 	VMenu.AddNum(menu, "Coiffure", "Hair", 0, 22, "Changer la coiffure")
-	VMenu.AddNum(menu, "Couleur", "HairColor", 0, 6, "Changer la couleur des cheveux")
-	VMenu.AddFunc(menu, "Valider", "vmenu:getclientHair", {getOpt("Hair"),getOpt("HairColor")}, "Obtenir cette coiffure")
+	VMenu.AddNum(menu, "Coiffure secondaire", "HairSec", 0, 6, "Changer la coiffure")
+	VMenu.AddNum(menu, "Couleur", "HairColor", 0, 10, "Changer la couleur des cheveux")
+	VMenu.AddNum(menu, "Couleur secondaire", "HairColorSec", 0, 100, "Changer la couleur des cheveux")
+	VMenu.AddFunc(menu, "Valider", "vmenu:getclientHair", {getOpt("Hair"),getOpt("HairSec"),getOpt("HairColor"),getOpt("HairColorSec")}, "Obtenir cette coiffure")
 
 	local menu = 10
 	VMenu.AddMenu(menu, "", "default") -- default = Header "Texte" sur fond bleu
@@ -1024,7 +1030,7 @@ function Construct()
 	-- end
 	VMenu.AddNum(menu, "Quantité", "itemBuy", 1, 30, "Sélection")
 	for _, item in pairs(inv_array_legal) do
-		VMenu.AddFunc(menu, item.name, "inventory:buy", {getOpt("itemBuy"), item.id, item.price, item.name}, "Acheter")
+		VMenu.AddFunc(menu, item.name, "inventory:buy", {getOpt("itemBuy"), item.id, item.price, item.name}, "Prix: " .. item.price .. "$")
 	end
 
 
@@ -1082,6 +1088,16 @@ function Construct()
 	VMenu.AddFunc(menu, "Ouvrir cellule #2", "menupolice:unjail", {2, User.police}, "Ouvrir")
 	VMenu.AddFunc(menu, "Ouvrir cellule #3", "menupolice:unjail", {3, User.police}, "Ouvrir")
 
+	local menu = 19
+	VMenu.AddMenu(menu, "", "default")
+	TriggerServerEvent('vmenu:updateUser', menu)
+	Wait(200)
+	VMenu.ResetMenu(menu, "", "default")
+	if User.jobs == 13 then
+		VMenu.AddFunc(menu, "Helico d'ambulancier", "vmenu:getAmbulanceHelicoGarage", {"polmav"}, "Obtenir cet hélicoptère")
+	else
+		VMenu.AddSep(menu, "Vous devez être en ambulancier")
+	end
 
 	------- MAIN MENU F7
 	local menu = 98
@@ -1097,6 +1113,7 @@ function getOutfitsMenu(id, OutfitsNo)
 		if item.id == id then
 			i = i + 1
 			if i == OutfitsNo then
+				Citizen.Trace(item.name)
 				args = { item.zero[1],item.zero[2],item.two[1],item.two[2],item.four[1],item.four[2],item.six[1],item.six[2],item.eleven[1],item.eleven[2],item.eight[1],item.eight[2],item.three[1],item.three[2],item.seven[1],item.seven[2],GetHashKey("mp_m_freemode_01") }
 				TriggerEvent("vmenu:updateCharInShop", args)
 				break
@@ -1111,23 +1128,23 @@ function getMainMenu()
 		TriggerServerEvent("inventory:getItems_s")
 		VMenu.ResetMenu(98, "", "default")
 		Wait(10)
-		VMenu.AddSep(98, User.nom .. " " .. User.prenom)
-		VMenu.AddSep(98, "Tel:" .. User.telephone)
+		VMenu.AddSep(98, User.prenom .. " " .. User.nom)
+		VMenu.AddSep(98, lang.menu.mainmenu.tel .. User.telephone)
 		-- LE MENU DE LA POLICE
 		if User.police > 0 then
-			VMenu.AddFunc(98, "Menu Police", "menupolice:PoliceOG", {User.police}, "Accéder")
+			VMenu.AddFunc(98, lang.menu.mainmenu.police, "menupolice:PoliceOG", {User.police}, lang.common.access)
 		end
 		-- 	lE MENU SELON LA JOB
 		VMenu.AddSep(98, jobsname[User.job])
 
-		VMenu.AddFunc(98, "Animations", "menuanim:AnimOG", {}, "Accéder")
-		VMenu.AddFunc(98, "Répertoire", "menutel:PhoneOG", {User.telephone}, "Accéder")
-		VMenu.AddFunc(98, "Donner de l'argent", "vmenu:giveCash", {User.money}, "Accéder")
-		VMenu.AddFunc(98, "Donner de l'argent sale", "vmenu:giveDCash", {User.dirtymoney}, "Accéder")
-		VMenu.AddSep(98, "Inventaire")
+		VMenu.AddFunc(98, lang.menu.mainmenu.anim, "menuanim:AnimOG", {}, lang.common.access)
+		VMenu.AddFunc(98, lang.menu.mainmenu.reper, "menutel:PhoneOG", {User.telephone}, lang.common.access)
+		VMenu.AddFunc(98, lang.menu.mainmenu.givecash, "vmenu:giveCash", {User.money}, lang.common.access)
+		VMenu.AddFunc(98, lang.menu.mainmenu.givedcash, "vmenu:giveDCash", {User.dirtymoney}, lang.common.access)
+		VMenu.AddSep(98, lang.menu.mainmenu.inventory)
 		for ind, value in ipairs(ITEMS) do
 			if value.quantity > 0 then
-				VMenu.AddFunc(98, tostring(value.libelle), "inventory:useItem", {ind}, "Quantité : " .. tostring(value.quantity))
+				VMenu.AddFunc(98, tostring(value.libelle), "inventory:useItem", {ind}, lang.menu.mainmenu.quantity .. tostring(value.quantity))
 			end
 		end
 	end
@@ -1169,10 +1186,20 @@ function getGaragePolice()
 	end
 end
 
+function getGarageHelicoAmbulance()
+	TriggerServerEvent('vmenu:updateUser', 19)
+	Wait(200)
+	VMenu.ResetMenu(19, "", "default")
+	if User.job == 13 then
+		VMenu.AddFunc(19, "Helico d'ambulancier", "vmenu:getAmbulanceHelicoGarage", {"polmav"}, "Obtenir cet hélicoptère")
+	else
+		VMenu.AddSep(19, "Vous devez être en ambulancier")
+	end
+end
+
 function getGarageHelicoPolice()
 	TriggerServerEvent('vmenu:updateUser', 17)
 	Wait(200)
-	Citizen.Trace(User.enService)
 	VMenu.ResetMenu(17, "", "default")
 	if User.enService == 1 then
 		if User.police >= 1 then
@@ -1206,25 +1233,41 @@ end
 function getTankerCompany()
 	VMenu.ResetMenu(13, "", "default")
 	VMenu.AddMenu(13, "", "default")
-	VMenu.AddFunc(13, "Citerne", "transporter:optionMission", {0}, "Choisir")
+	if onJobLegal == 0 then
+		VMenu.AddFunc(13, "Citerne", "transporter:optionMission", {0}, "Choisir")
+	else
+		VMenu.AddFunc(13, "Terminer votre journée de travail", "transporter:optionEnding", {}, "Choisir")
+	end
 end
 
 function getContainerCompany()
 	VMenu.ResetMenu(13, "", "default")
 	VMenu.AddMenu(13, "", "default")
-	VMenu.AddFunc(13, "Conteneur", "transporter:optionMission", {1}, "Choisir")
+	if onJobLegal == 0 then
+		VMenu.AddFunc(13, "Conteneur", "transporter:optionMission", {1}, "Choisir")
+	else
+		VMenu.AddFunc(13, "Terminer votre journée de travail", "transporter:optionEnding", {}, "Choisir")
+	end
 end
 
 function getFrigorifiqueCompany()
 	VMenu.ResetMenu(13, "", "default")
 	VMenu.AddMenu(13, "", "default")
-	VMenu.AddFunc(13, "Réfrigéré", "transporter:optionMission", {2}, "Choisir")
+	if onJobLegal == 0 then
+		VMenu.AddFunc(13, "Réfrigéré", "transporter:optionMission", {2}, "Choisir")
+	else
+		VMenu.AddFunc(13, "Terminer votre journée de travail", "transporter:optionEnding", {}, "Choisir")
+	end
 end
 
 function getLogCompany()
 	VMenu.ResetMenu(13, "", "default")
 	VMenu.AddMenu(13, "", "default")
-	VMenu.AddFunc(13, "Bois", "transporter:optionMission", {3}, "Choisir")
+	if onJobLegal == 0 then
+		VMenu.AddFunc(13, "Bois", "transporter:optionMission", {3}, "Choisir")
+	else
+		VMenu.AddFunc(13, "Terminer votre journée de travail", "transporter:optionEnding", {}, "Choisir")
+	end
 end
 
 -------------------------------------------------------------
@@ -1312,7 +1355,7 @@ Citizen.CreateThread(function()
 					--TriggerServerEvent("menupolice:escortcuff_s", GetPlayerServerId(VMenu.target), pname)
 					TriggerEvent("menupolice:wescortcuff", VMenu.target)
 				else
-					TriggerEvent("citizenv:notif", "Aucun civil à proximité n'est menotté")
+					TriggerEvent("itinerance:notif", "Aucun civil à proximité n'est menotté")
 				end
 
 			end
@@ -1330,12 +1373,12 @@ Citizen.CreateThread(function()
 			end
 
 			if VOpts.toUpdate == "itemBuy" then
-					-- local curUpdate = getOpt("itemBuy")
-					-- VMenu.ResetMenu(11, "", "default")
-					-- VMenu.AddNum(11, "Quantité", "itemBuy", curUpdate, 30, "Sélection")
-					for _, item in pairs(inv_array_legal) do
-						VMenu.EditFunc(11, item.name, "inventory:buy", {getOpt("itemBuy"), item.id, item.price, item.name}, "Acheter")
-					end
+				-- local curUpdate = getOpt("itemBuy")
+				-- VMenu.ResetMenu(11, "", "default")
+				-- VMenu.AddNum(11, "Quantité", "itemBuy", curUpdate, 30, "Sélection")
+				for _, item in pairs(inv_array_legal) do
+					VMenu.EditFunc(11, item.name, "inventory:buy", {getOpt("itemBuy"), item.id, item.price, item.name}, "Acheter")
+				end
 			end
 
 			if VMenu.police then
@@ -1618,20 +1661,25 @@ Citizen.CreateThread(function()
 					getOutfitsMenu(174, getOpt("OutfitsNo67"))
 					VMenu.EditFunc(8, "Validez votre tenue", "vmenu:OutfitsVal", {getOpt("OutfitsNo67"), 174}, "Valider")
 				end
+				if VOpts.toUpdate == "OutfitsNo68" then
+					getOutfitsMenu(175, getOpt("OutfitsNo68"))
+					VMenu.EditFunc(8, "Validez votre tenue", "vmenu:OutfitsVal", {getOpt("OutfitsNo68"), 175}, "Valider")
+				end
 			end
 
 			if VMenu.barbershop then
-				if VOpts.toUpdate == "Hair" or VOpts.toUpdate == "HairColor" then
-					SetPedComponentVariation(GetPlayerPed(-1), 2, getOpt("Hair"), getOpt("HairColor"), 2)
-					VMenu.EditFunc(9, "Valider", "vmenu:getclientHair", {getOpt("Hair"),getOpt("HairColor")}, "Obtenir cette tenue")
+				if VOpts.toUpdate == "Hair" or VOpts.toUpdate == "HairSec" or VOpts.toUpdate == "HairColor" or VOpts.toUpdate == "HairColorSec" then
+					SetPedComponentVariation(GetPlayerPed(-1), 2, getOpt("Hair"), getOpt("HairSec"), 2)
+					SetPedHairColor(GetPlayerPed(-1), getOpt("HairColor"), getOpt("HairColorSec"))
+					VMenu.EditFunc(9, "Valider", "vmenu:getclientHair", {getOpt("Hair"),getOpt("HairSec"),getOpt("HairColor"),getOpt("HairColorSec")}, "Obtenir cette tenue")
 				end
 				if VOpts.toUpdate == "Hair" then
 					if (getOpt("Hair") == 1) or (getOpt("Hair") == 2) or (getOpt("Hair") == 3) or (getOpt("Hair") == 5) or (getOpt("Hair") == 6) or (getOpt("Hair") == 10) or (getOpt("Hair") == 11) or (getOpt("Hair") == 13) or (getOpt("Hair") == 15) then
-						VMenu.EditNum(9, "Couleur", "HairColor", 0, 5, "Change la couleur des cheveux")
+						VMenu.EditNum(9, "Couleur", "HairSec", 0, 5, "Change la couleur des cheveux")
 					elseif (getOpt("Hair") == 4) or (getOpt("Hair") == 7) or (getOpt("Hair") == 9) then
-						VMenu.EditNum(9, "Couleur", "HairColor", 0, 6, "Change la couleur des cheveux")
+						VMenu.EditNum(9, "Couleur", "HairSec", 0, 6, "Change la couleur des cheveux")
 					else
-						VMenu.EditNum(9, "Couleur", "HairColor", 0, 4, "Change la couleur des cheveux")
+						VMenu.EditNum(9, "Couleur", "HairSec", 0, 4, "Change la couleur des cheveux")
 					end
 				end
 			end
@@ -1728,6 +1776,8 @@ Citizen.CreateThread(function()
 			VMenu.garagepolice = true
 		elseif (IsNearPoints(Garage_helico_police, 5) == true) then
 			VMenu.garagehelicopolice = true
+		elseif (IsNearPoints(Garage_helico_ambulance, 5) == true) then
+			VMenu.garagehelicoambulance = true
 		elseif (IsNearPoints(OutfitsShop, 4) == true) then
 			VMenu.outfitshop = true
 		elseif (IsNearPoints(BarberShop, 4) == true) then
@@ -1757,12 +1807,13 @@ Citizen.CreateThread(function()
 		--           end
 		--       end
 	else
-
+		local X = GetEntityForwardX(GetPlayerPed(-1))
+		local Y = GetEntityForwardY(GetPlayerPed(-1))
 		for i = 0,31 do
 			if NetworkIsPlayerConnected(i) then
 				if NetworkIsPlayerActive(i) and GetPlayerPed(i) ~= nil then
 					if GetPlayerServerId(i) ~= GetPlayerServerId(PlayerId()) then
-						if (GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)), GetEntityCoords(GetPlayerPed(i))) < 2.5001) then
+						if (GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)).x+X,GetEntityCoords(GetPlayerPed(-1)).y+Y,GetEntityCoords(GetPlayerPed(-1)).z, GetEntityCoords(GetPlayerPed(i)).x,GetEntityCoords(GetPlayerPed(i)).y,GetEntityCoords(GetPlayerPed(i)).z) < 0.6001) then
 							talkingTarget = i
 
 							break
@@ -1788,9 +1839,6 @@ Citizen.CreateThread(function()
 		-- 	livery = livery + 1
 		-- end
 
-		TriggerEvent("es:setMoneyDisplay", "hidden")
-		TriggerEvent("banking:setBankDisplay", "hidden")
-
 		if IsControlPressed(0, 311) then
 			if User.police >= 1 then
 				if talkingTarget ~= -1 then
@@ -1806,7 +1854,7 @@ Citizen.CreateThread(function()
 						kpress = not kpress
 					end
 				else
-					TriggerEvent("citizenv:notif", "~r~Vous n'avez pas de cible")
+					TriggerEvent("itinerance:notif", "~r~Vous n'avez pas de cible")
 				end
 			end
 		end
@@ -1816,8 +1864,6 @@ Citizen.CreateThread(function()
 			VMenu.curItem = 1
 			--TriggerEvent("vmenu:anim", "cellphone@", "text_in")
 			TriggerEvent("vmenu:openMenu", 98)
-			TriggerEvent("es:setMoneyDisplay", "visible")
-			TriggerEvent("banking:setBankDisplay", "visible")
 			VMenu.mainMenu = true
 			-- 	TriggerServerEvent("vmenu:updateUser", true)
 			if VMenu.police == false and VMenu.telephone == false and VMenu.animations == false then
@@ -1845,8 +1891,15 @@ Citizen.CreateThread(function()
 				if VMenu.garagehelicopolice == false then
 					getGarageHelicoPolice()
 				end
+			elseif (IsNearPoints(Garage_helico_ambulance, 5) == true) then
+				TriggerEvent("vmenu:openMenu", 19)
+				if VMenu.garagehelicoambulance == false then
+					getGarageHelicoAmbulance()
+				end
 			elseif (IsNearPoints(Tanker_company, 3) == true) then
 				if User.job == 7 then
+					TriggerEvent("job:getJobInfos")
+					Wait(200)
 					TriggerEvent("vmenu:openMenu", 13)
 					if VMenu.TankerCompany == false then
 						getTankerCompany()
@@ -1857,6 +1910,8 @@ Citizen.CreateThread(function()
 				end
 			elseif (IsNearPoints(Container_company, 3) == true) then
 				if User.job == 8 then
+					TriggerEvent("job:getJobInfos")
+					Wait(200)
 					TriggerEvent("vmenu:openMenu", 13)
 					if VMenu.ContainerCompany == false then
 						getContainerCompany()
@@ -1867,6 +1922,8 @@ Citizen.CreateThread(function()
 				end
 			elseif (IsNearPoints(Frigorifique_company, 3) == true) then
 				if User.job == 9 then
+					TriggerEvent("job:getJobInfos")
+					Wait(200)
 					TriggerEvent("vmenu:openMenu", 13)
 					if VMenu.FrigorifiqueCompany == false then
 						getFrigorifiqueCompany()
@@ -1877,6 +1934,8 @@ Citizen.CreateThread(function()
 				end
 			elseif (IsNearPoints(Log_company, 3) == true) then
 				if User.job == 6 then
+					TriggerEvent("job:getJobInfos")
+					Wait(200)
 					TriggerEvent("vmenu:openMenu", 13)
 					if VMenu.LogCompany == false then
 						getLogCompany()
@@ -1921,6 +1980,9 @@ Citizen.CreateThread(function()
 			VMenu.Info('Appuyer sur ~g~F6~s~ pour accéder au garage', false)
 		elseif (IsNearPoints(Garage_helico_police, 5) == true and User.police >= 1) then
 			VMenu.garagehelicopolice = false
+			VMenu.Info('Appuyer sur ~g~F6~s~ pour accéder au garage', false)
+		elseif (IsNearPoints(Garage_helico_ambulance, 5) == true and User.job == 13) then
+			VMenu.garagehelicoambulance = false
 			VMenu.Info('Appuyer sur ~g~F6~s~ pour accéder au garage', false)
 		elseif (IsNearPoints(informateur, 3) == true) then
 			VMenu.Info("Appuyer sur ~g~F6~s~ pour parler avec l'informateur", false)

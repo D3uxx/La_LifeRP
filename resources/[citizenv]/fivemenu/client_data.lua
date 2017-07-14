@@ -4,13 +4,13 @@ OutfitsCat = {"Haute Gamme", "Associates", "Beach", "Biker", "Biker Suit", "VIP"
  "MC Patched Member", "MC Outlaw", "MC One Percenter", "MC Mod", "Luxuary", "Lowrider", "Lowrider Classics", "Juggernaut", "Import", "Hipster",
  "High Life Open", "High Life Closed", "Heist Tuxedos", "Heist Tactical Stealth", "Heist Street", "Heist Street Combat", "Heist Sloppy", "Heist Sharp",
  "Heist Shady", "Heist Rider", "Heist Rebel", "Heist Minimalist", "Heist Light Combat", "Heist Heavy Combat", "Heist Coveralls", "Heist Casual",
- "Heist Buisness Security", "Flight Suit", "Flashy", "Festive", "Drop Zone", "Deadline", "CEO", "Casual", "Bodysuits", "Bodyguard"}
+ "Heist Buisness Security", "Flight Suit", "Flashy", "Festive", "Drop Zone", "Deadline", "CEO", "Casual", "Bodysuits", "Bodyguard", "Tenue de femmes"}
 
 changeYourJob = {
   {name="Pole Emploi", colour=15, id=351, x=-601.59295654297, y=-116.45598602295, z=41.734840393066},
 }
 
-jobsname = {"Sans Emploi", "Nettoyeur de piscine", "Éboueur", "Mineur", "Chauffeur de taxi", "Livreur de bois", "Livreur de citerne", "Livreur de conteneur", "Livreur de médicaments", "Policier", "Fossoyeur", "Préposé à la morgue", "Ambulancier" }
+jobsname = {"Sans Emploi", "Nettoyeur de piscines", "Éboueur", "Mineur", "Chauffeur de taxi", "Livreur de bois", "Livreur de citerne", "Livreur de conteneur", "Livreur de médicaments", "Policier", "Fossoyeur", "Préposé à la morgue", "Ambulancier" }
 
 jobs = {
   {name="Sans Emploi", id=1},
@@ -112,6 +112,10 @@ Garage_police = {
 
 Garage_helico_police = {
   {name="Pole Emploi", colour=15, id=351, ['x'] = 449.87265014648, ['y'] = -981.50982666016, ['z'] = 43.69164276123},
+}
+
+Garage_helico_ambulance = {
+  { ['x'] = 313.22354125977, ['y'] = -1464.9350585938, ['z'] = 46.509483337402 }
 }
 
 Tanker_company = {
