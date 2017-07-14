@@ -49,6 +49,7 @@ AddEventHandler("menupolice:PoliceOG", function(target, rangPolice) -- 0 rien, 1
 		VMenu.AddFunc(98, "Enfermer le civil en prison", "menupolice:jail", {}, "Accéder")
 		VMenu.AddFunc(98, "Crocheter la serrure du véhicule", "menupolice:unlock", {}, "Accéder")
 		VMenu.AddFunc(98, "Consulter la liste des suspects recherchés ", "menupolice:consultwanted", {}, "Accéder")
+		VMenu.AddFunc(98, "Ajout personnel LAPD", "vmenu:ajoutpolicier", {target}, "Ajouter")
 
 		-- Ajouter/Retirer dans le commissariat
 end)
@@ -99,3 +100,65 @@ end)
 AddEventHandler('menupolice:consultwanted', function()
 	TriggerServerEvent("wanted:getWanted")
 end)
+
+---Ajouter personnel lspd dans la db---
+
+----Menu Ajout Police----
+
+AddEventHandler("vmenu:ajoutpolicier", function(target)
+
+	if target ~= -1 then
+        nameTarget = "Vous cilblez un civil"
+
+        TriggerServerEvent('vmenu:updateUser', 98)
+    	VMenu.ResetMenu(98, "", "default")
+        VMenu.AddFunc(98, "Retour", "menupolice:PoliceOG", {}, "Retour")
+        VMenu.AddSep(98, tostring(nameTarget))
+        VMenu.AddFunc(98, "Cadet", "vmenu:ajoutcadet", {target}, "Ajouter")
+        VMenu.AddFunc(98, "Brigadier", "vmenu:ajoutbrigadier", {target}, "Ajouter")
+        VMenu.AddFunc(98, "Sergent", "vmenu:ajoutsergent", {target}, "Ajouter")
+        VMenu.AddFunc(98, "Lieutenant", "vmenu:ajoutlieutenant", {target}, "Ajouter")
+        VMenu.AddFunc(98, "Capitaine", "vmenu:ajoutcapitaine", {target}, "Ajouter")
+
+    else
+        nameTarget = "Aucune cible"
+    end
+    
+end)
+
+---Cadet
+AddEventHandler("vmenu:ajoutcadet", function(target)
+
+    TriggerServerEvent('vmenu:ajoutcadetserv', GetPlayerServerId(target))
+    DrawNotif("~g~Cadet engagé~s~")
+end)
+
+---Brigadire
+AddEventHandler("vmenu:ajoutbrigadier", function(target)
+
+    TriggerServerEvent('vmenu:ajoutbrigadierserv', GetPlayerServerId(target))
+    DrawNotif("~g~Brigadier engagé~s~")
+end)
+
+---Sergent
+AddEventHandler("vmenu:ajoutsergent", function(target)
+
+    TriggerServerEvent('vmenu:ajoutsergentserv', GetPlayerServerId(target))
+    DrawNotif("~g~Sergent engagé~s~")
+end)
+
+---Lieutnant
+AddEventHandler("vmenu:ajoutlieutenant", function(target)
+
+    TriggerServerEvent('vmenu:ajoutlieutenantserv', GetPlayerServerId(target))
+    DrawNotif("~g~Lieutenant engagé~s~")
+end)
+
+---Capitaine
+AddEventHandler("vmenu:ajoutcapitaine", function(target)
+
+    TriggerServerEvent('vmenu:ajoutcapitaineserv', GetPlayerServerId(target))
+    DrawNotif("~g~Capitaine engagé~s~")
+end)
+
+---Fin ajouter personnel lspd dans la db---
