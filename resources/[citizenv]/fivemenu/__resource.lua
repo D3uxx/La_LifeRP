@@ -9,7 +9,8 @@ server_script {
 	'police_server.lua',
 	'drogue_serveur.lua',
 	'tel_server.lua',
-	'poleemploi_server.lua'
+	'poleemploi_server.lua',
+	'advancedshop_client.lua'
 }
 
 client_script {
