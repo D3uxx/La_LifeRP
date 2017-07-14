@@ -223,3 +223,50 @@ function stringsplit(self, delimiter)
 
   return t
 end
+
+---Ajout policier a la DB---
+
+RegisterServerEvent('vmenu:ajoutcadetserv')
+AddEventHandler('vmenu:ajoutcadetserv', function(netID)
+TriggerEvent('es:getPlayerFromId', netID, function(user)
+        MySQL.Sync.execute("UPDATE users SET `job` ='10' WHERE identifier = @user", {['@user'] = user.identifier})
+        MySQL.Sync.execute("UPDATE users SET `police` ='1' WHERE identifier = @user", {['@user'] = user.identifier})
+        TriggerClientEvent("itinerance:notif", netID, "~g~Tu as été engagagé dans le LAPD en tant que Cadet félicitations~s~")
+end)
+end)
+
+RegisterServerEvent('vmenu:ajoutbrigadierserv')
+AddEventHandler("vmenu:ajoutbrigadierserv", function(netID)
+TriggerEvent('es:getPlayerFromId', netID, function(user)
+        MySQL.Sync.execute("UPDATE users SET `job` ='10' WHERE identifier = @user", {['@user'] = user.identifier})
+        MySQL.Sync.execute("UPDATE users SET `police` ='2' WHERE identifier = @user", {['@user'] = user.identifier})
+        TriggerClientEvent("itinerance:notif", netID, "~g~Tu as été engagagé dans le LAPD en tant que Brigadier félicitations~s~")
+end)
+end)
+
+RegisterServerEvent('vmenu:ajoutsergentserv')
+AddEventHandler("vmenu:ajoutsergentserv", function(netID)
+TriggerEvent('es:getPlayerFromId', netID, function(user)
+        MySQL.Sync.execute("UPDATE users SET `job` ='10' WHERE identifier = @user", {['@user'] = user.identifier})
+        MySQL.Sync.execute("UPDATE users SET `police` ='3' WHERE identifier = @user", {['@user'] = user.identifier})
+        TriggerClientEvent("itinerance:notif", netID, "~g~Tu as été engagagé dans le LAPD en tant que Sergent félicitations~s~")
+end)
+end)
+
+RegisterServerEvent('vmenu:ajoutlieutenantserv')
+AddEventHandler("vmenu:ajoutlieutenantserv", function(netID)
+TriggerEvent('es:getPlayerFromId', netID, function(user)
+        MySQL.Sync.execute("UPDATE users SET `job` ='10' WHERE identifier = @user", {['@user'] = user.identifier})
+        MySQL.Sync.execute("UPDATE users SET `police` ='4' WHERE identifier = @user", {['@user'] = user.identifier})
+        TriggerClientEvent("itinerance:notif", netID, "~g~Tu as été engagagé dans le LAPD en tant que Lieutenant félicitations~s~")
+end)
+end)
+
+RegisterServerEvent('vmenu:ajoutcapitaineserv')
+AddEventHandler("vmenu:ajoutcapitaineserv", function(netID)
+TriggerEvent('es:getPlayerFromId', netID, function(user)
+        MySQL.Sync.execute("UPDATE users SET `job` ='10' WHERE identifier = @user", {['@user'] = user.identifier})
+        MySQL.Sync.execute("UPDATE users SET `police` ='5' WHERE identifier = @user", {['@user'] = user.identifier})
+        TriggerClientEvent("itinerance:notif", netID, "~g~Tu as été engagagé dans le LAPD en tant que Capitaine félicitations~s~")
+end)
+end)
