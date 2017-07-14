@@ -24,5 +24,6 @@ files({
     'lock/client/html/index.html',
     'lock/client/html/sounds/lock.ogg',
     'lock/client/html/sounds/unlock.ogg',
-    'lock/client/html/sounds/demo.ogg'
+    'lock/client/html/sounds/demo.ogg',
+    'lock/client/html/sounds/repair.ogg' 
 })
