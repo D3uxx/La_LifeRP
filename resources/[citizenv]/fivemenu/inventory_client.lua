@@ -95,19 +95,55 @@ AddEventHandler("inventory:useItem", function(target, id) -- target = Dernier jo
 		end
 	end
 	delete({ id, 1})
+	TriggerEvent("vmenu:item")
 	if id == 1 then
-		if IsInVehicle() then
+		if not IsInVehicle() then
 			TriggerEvent("food:vdrink", value)
 		else
+			DrawNotif("~r~Vous ne pouvez pas boire dans un véhicule~s~")
 			TriggerEvent("food:drink", useItem)
 		end
 
+    elseif id == 28 then
+        if not IsInVehicle() then
+             TriggerEvent("repair:repairkit")
+	    else
+	         DrawNotif("~r~Vous ne pouvez pas réparer le véhicule de l\'intérieur~s~")
+		     TriggerEvent("player:receiveItem", 28, 1)
+	    end
+
+	elseif id == 29 then
+        if not IsInVehicle() then
+             TriggerEvent("medecin:soins")
+	    else
+	    	 DrawNotif("~r~Vous ne pouvez pas vous soigner dans un véhicule~s~")
+		     TriggerEvent("player:receiveItem", 29, 1)
+	    end
+
+	elseif id == 30 then
+        if not IsInVehicle() then
+             TriggerEvent("cigarettes:fumer")
+	    else
+	    	 DrawNotif("~r~Vous ne pouvez pas fumer dans un véhicule~s~")
+		     TriggerEvent("player:receiveItem", 30, 1)
+	    end
+
+    elseif id == 31 then
+        if not IsInVehicle() then
+             TriggerEvent("petard:fumer")
+	    else
+	    	 DrawNotif("~r~Vous ne pouvez pas fumer un pétard dans un véhicule~s~")
+		     TriggerEvent("player:receiveItem", 31, 1)
+	    end
+
 	else
-		if IsInVehicle() then
+		if not IsInVehicle() then
 			TriggerEvent("food:veat", value)
 		else
+			DrawNotif("~r~Vous ne pouvez pas manger dans un véhicule~s~")
 			TriggerEvent("food:eat", useItem)
 		end
+
 	end
 end)
 
